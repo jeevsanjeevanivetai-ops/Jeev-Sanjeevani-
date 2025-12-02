@@ -1,0 +1,537 @@
+<!doctype html>﻿
+<html lang="en">﻿
+<head>﻿
+  <meta charset="UTF-8">﻿
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">﻿
+  <title>Jeev Sanjeevani - Veterinary Disease Information Portal</title>﻿
+
+  <!-- Core styles (from your paste, kept and slightly tuned) -->﻿
+  <style>﻿
+    :root{--primary:#667eea;--primary-dark:#5568d3;--muted:#718096;--bg-grad:linear-gradient(135deg,#667eea 0%,#764ba2 100%);}﻿
+    *{box-sizing:border-box}﻿
+    html,body{height:100%;margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif}﻿
+    .app-wrapper{width:100%;min-height:100%;background:var(--bg-grad);padding:28px 12px}﻿
+    .page-container{max-width:1100px;margin:0 auto;display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap}﻿
+    .content-box{background:#fff;border-radius:14px;padding:28px;flex:1 1 640px;box-shadow:0 20px 60px rgba(0,0,0,0.22)}﻿
+    .sidebar{background:#fff;border-radius:14px;padding:20px;width:300px;box-shadow:0 12px 40px rgba(0,0,0,0.12)}﻿
+    .header{text-align:center;margin-bottom:14px}﻿
+    .header h1{margin:0;font-size:26px;color:#2d3748}﻿
+    .header .subtitle{color:var(--muted);font-size:14px;margin-top:6px}﻿
+
+    .search-container{position:relative;margin:16px 0}﻿
+    .search-container input{width:100%;padding:12px 46px 12px 12px;border-radius:12px;border:2px solid #e2e8f0;font-size:15px}﻿
+    .search-icon{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:#a0aec0;font-size:18px}﻿
+
+    .disease-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-top:12px}﻿
+    .disease-card{background:#fff;border:2px solid #e2e8f0;border-radius:12px;padding:16px;text-align:center;cursor:pointer;transition:all .22s}﻿
+    .disease-card:hover{transform:translateY(-6px);border-color:var(--primary);box-shadow:0 10px 20px rgba(102,126,234,0.16)}﻿
+    .disease-card .icon{font-size:34px;margin-bottom:8px}﻿
+    .disease-card h3{margin:6px 0 4px 0;color:#2d3748;font-size:16px}﻿
+    .disease-card p{margin:0;color:var(--muted);font-size:13px}﻿
+
+    .info-section{background:#fff;border:2px solid #e2e8f0;border-radius:12px;padding:18px;margin-bottom:12px}﻿
+    .info-section h3{color:var(--primary);margin:0 0 10px 0;display:flex;align-items:center;gap:10px}﻿
+    .info-section h4{color:#2d3748;margin:12px 0 6px 0;font-size:15px}﻿
+    .info-section p, .info-section li{color:#4a5568;line-height:1.6;font-size:14px}﻿
+
+    .back-btn{background:#e2e8f0;color:#2d3748;padding:8px 14px;border-radius:8px;border:none;cursor:pointer;font-weight:600;margin-bottom:10px}﻿
+    .btn{display:inline-block;padding:10px 14px;border-radius:8px;border:none;background:var(--primary);color:#fff;font-weight:700;cursor:pointer}﻿
+    .btn.secondary{background:#edf2f7;color:#2d3748}﻿
+    .logo-section{text-align:center;margin-bottom:10px}﻿
+    .logo-text{font-size:40px;font-weight:800;background:var(--bg-grad);-webkit-background-clip:text;background-clip:text;color:transparent}﻿
+    .tagline{color:var(--muted);font-size:13px;font-style:italic}﻿
+
+    .welcome-user{background:#f0fff4;border:2px solid #9ae6b4;border-radius:8px;padding:10px 12px;color:#22543d;font-weight:700;text-align:center;margin-bottom:12px}﻿
+    .user-badge{display:inline-block;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700;margin-left:8px}﻿
+    .badge-farmer{background:#c6f6d5;color:#22543d}﻿
+    .badge-student{background:#bee3f8;color:#2c5282}﻿
+    .badge-doctor{background:#fed7d7;color:#742a2a}﻿
+
+    .stats-badge{display:inline-block;background:#edf2f7;color:#2d3748;padding:6px 12px;border-radius:6px;font-size:13px;font-weight:600;margin-top:8px}﻿
+
+    .flowchart-box{background:#f7fafc;border:2px dashed var(--primary);border-radius:8px;padding:12px;text-align:center;margin-top:10px}﻿
+
+    .loading{display:inline-block;width:16px;height:16px;border:3px solid rgba(255,255,255,0.3);border-radius:50%;border-top-color:white;animation:spin .8s linear infinite;margin-left:8px}﻿
+    @keyframes spin{to{transform:rotate(360deg)}}﻿
+
+    /* detail view */﻿
+    .disease-detail{animation:fadeIn .25s ease}﻿
+    @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}﻿
+
+    /* small screens */﻿
+    @media (max-width:900px){﻿
+      .page-container{flex-direction:column;align-items:stretch}﻿
+      .sidebar{width:100%}﻿
+      .content-box{min-width:0}﻿
+    }﻿
+
+    /* simple form */﻿
+    .form-group{margin-bottom:12px}﻿
+    .form-row{display:flex;gap:8px}﻿
+    .form-row .col{flex:1}﻿
+    label{display:block;font-weight:600;margin-bottom:6px;font-size:13px;color:#2d3748}﻿
+    input[type="text"], input[type="tel"], select, textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #e2e8f0;font-size:14px}﻿
+    small.muted{display:block;color:#94a3b8;margin-top:6px}﻿
+
+    .footer-note{font-size:13px;color:#94a3b8;margin-top:10px;text-align:center}﻿
+    .top-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:center}﻿
+    .download-link{display:inline-block;margin-left:6px;font-size:13px;color:var(--primary);text-decoration:underline;cursor:pointer}﻿
+  </style>﻿
+  <style>@view-transition { navigation: auto; }</style>﻿
+</head>﻿
+<body>﻿
+  <div class="app-wrapper">﻿
+    <div class="page-container">﻿
+      <!-- Main content area -->﻿
+      <div class="content-box" id="mainContent">﻿
+        <div class="logo-section">﻿
+          <div class="logo-text">Jeev Sanjeevani</div>﻿
+          <div class="tagline">Veterinary disease information — quick, practical, and local</div>﻿
+        </div>﻿
+
+        <div id="welcomeArea" style="display:none" class="welcome-user">﻿
+          Welcome,<span id="userNameText"></span>﻿
+          <span id="userBadge" class="user-badge"></span>﻿
+        </div>﻿
+
+        <div class="search-container">﻿
+          <input id="searchInput" placeholder="Search disease name or clinical sign (e.g., fever, nodules, salivation)..." />﻿
+          <div class="search-icon">🔎</div>﻿
+        </div>﻿
+
+        <div id="cardsView">﻿
+          <div class="disease-grid" id="diseaseGrid"></div>﻿
+        </div>﻿
+
+        <div id="detailView" style="display:none" class="disease-detail">﻿
+          <button class="back-btn" id="backBtn">← Back to list</button>﻿
+          <div id="diseaseDetailContainer"></div>﻿
+        </div>﻿
+
+        <div class="footer-note">This is a local, static demo. For multi-user features, connect to Firebase or your backend.</div>﻿
+      </div>﻿
+
+      <!-- Sidebar -->﻿
+      <div class="sidebar">﻿
+        <div style="text-align:center;margin-bottom:8px">﻿
+          <strong style="font-size:18px;color:#2d3748">Quick Actions</strong>﻿
+        </div>﻿
+
+        <div class="info-section" style="margin-bottom:14px">﻿
+          <h3>Profile</h3>﻿
+          <div id="profileArea">﻿
+            <!-- login form -->﻿
+            <div id="loginForm">﻿
+              <div class="form-group">﻿
+                <label for="nameInput">Name</label>﻿
+                <input id="nameInput" type="text" placeholder="Your name" />﻿
+              </div>﻿
+              <div class="form-group">﻿
+                <label for="phoneInput">Phone</label>﻿
+                <input id="phoneInput" type="tel" placeholder="Phone number" />﻿
+              </div>﻿
+              <div class="form-group">﻿
+                <label for="roleSelect">Role</label>﻿
+                <select id="roleSelect">﻿
+                  <option value="farmer">Farmer</option>﻿
+                  <option value="student">Student</option>﻿
+                  <option value="doctor">Doctor</option>﻿
+                </select>﻿
+              </div>﻿
+              <div style="display:flex;gap:8px">﻿
+                <button id="loginBtn" class="btn">Save Profile</button>﻿
+                <button id="clearBtn" class="btn secondary">Clear</button>﻿
+              </div>﻿
+              <small class="muted">Profile stored locally on your device only.</small>﻿
+            </div>﻿
+
+            <div id="profileInfo" style="display:none">﻿
+              <div style="font-weight:700;color:#2d3748" id="profileName"></div>﻿
+              <div style="margin-top:6px" id="profilePhone"></div>﻿
+              <div style="margin-top:8px" id="profileRoleBadge"></div>﻿
+              <div style="margin-top:8px">﻿
+                <button id="logoutBtn" class="btn secondary">Logout</button>﻿
+              </div>﻿
+            </div>﻿
+          </div>﻿
+        </div>﻿
+
+        <div class="info-section">﻿
+          <h3>Stats</h3>﻿
+          <div>﻿
+            <div>Site Visits:<strong id="visitsCount">0</strong></div>﻿
+            <div style="margin-top:6px">Unique Diseases:<strong id="diseaseCount">0</strong></div>﻿
+            <div style="margin-top:8px"><span id="topDisease">Top: —</span></div>﻿
+            <div style="margin-top:10px" id="perDiseaseList"></div>﻿
+          </div>﻿
+        </div>﻿
+
+        <div class="info-section">﻿
+          <h3>Data</h3>﻿
+          <div style="display:flex;gap:8px;flex-wrap:wrap">﻿
+            <button id="exportBtn" class="btn">Export DB (JSON)</button>﻿
+            <button id="resetStatsBtn" class="btn secondary">Reset Stats</button>﻿
+          </div>﻿
+          <small class="muted">Download the database or reset local stats.</small>﻿
+        </div>﻿
+
+        <div style="text-align:center;margin-top:12px">﻿
+          <small style="color:#94a3b8">Made for vets&farmers • Local-first</small>﻿
+        </div>﻿
+      </div>﻿
+    </div>﻿
+  </div>﻿
+
+  <!-- Script: data + UI logic -->﻿
+  <script>﻿
+    /***** DISEASE DATABASE (editable) *****/﻿
+    const diseases = [﻿
+      {﻿
+        id: 'lumpy',﻿
+        name: 'Lumpy Skin Disease',﻿
+        icon: '🐄',﻿
+        category: 'Viral Disease',﻿
+        short: 'High fever, raised nodules on skin, milk drop',﻿
+        clinicalSigns: ['High fever','Raised nodules on skin','Lesions in mouth and nose','Swollen lymph nodes','Milk drop','Loss of appetite','Lameness'],﻿
+        prevention: ['Vaccinate regularly','Control flies and mosquitoes','Isolate sick animals','Disinfect sheds','Restrict movement in outbreaks'],﻿
+        precautions: ['Isolate sick animals for 30 days','Wash hands after handling','Report to veterinary officer'],﻿
+        herbalTreatment: ['Neem paste on nodules','Turmeric + mustard oil paste','Tulsi leaves','Aloe vera on wounds','Giloy juice'],﻿
+        definition: 'Lumpy Skin Disease (LSD) is a contagious viral disease of cattle/buffalo caused by LSDV (Capripoxvirus).',﻿
+        etiology: 'LSDV: double-stranded DNA Capripoxvirus.',﻿
+        diagnosis: {﻿
+          field: ['Skin nodules + fever','Sudden milk drop','Enlarged lymph nodes'],﻿
+          lab: ['PCR on nodule biopsy (gold standard)','ELISA (antibodies)','Histopathology (inclusion bodies)']﻿
+        },﻿
+        treatment: {﻿
+          note: 'Supportive care — no specific antiviral.',﻿
+          specific: ['NSAIDs (meloxicam)','Antibiotics for secondary infections','Fluid therapy','Wound care'],﻿
+          topical: ['Betadine cleaning','Antibiotic ointment','Fly repellents']﻿
+        },﻿
+        vaccination: ['Neethling strain (live attenuated)','1 ml SC, annual','Immunity in 2-3 weeks'],﻿
+        caseStudy: {﻿
+          history: 'Unvaccinated lactating cow with sudden high fever and many skin nodules, severe milk drop.',﻿
+          outcome: 'Supportive therapy given; recovery but hide scars.'﻿
+        }﻿
+      },﻿
+
+      // Added sample diseases for demo:﻿
+      {﻿
+        id: 'fmd',﻿
+        name: 'Foot-and-Mouth Disease (FMD)',﻿
+        icon: '🐂',﻿
+        category: 'Viral Disease',﻿
+        short: 'Vesicles in mouth&feet, high morbidity',﻿
+        clinicalSigns: ['Fever','Vesicles on tongue, mouth, feet','Excessive salivation','Lameness','Sudden milk drop'],﻿
+        prevention: ['Vaccination programs','Restrict animal movement','Hygiene and disinfection'],﻿
+        precautions: ['Quarantine new animals','Separate infected animals','Proper disposal of contaminated materials'],﻿
+        definition: 'Highly contagious viral disease of cloven-hoofed animals caused by FMD virus (A, O, Asia1, etc.).',﻿
+        diagnosis: {field:['Vesicles and herd pattern'], lab:['ELISA','PCR','Virus isolation']},﻿
+        treatment: {note:'Supportive care', specific:['NSAIDs','Oral soothing agents','Antibiotics for secondary infections']},﻿
+        vaccination:['Serotype-specific vaccines','Frequent vaccination in endemic areas']﻿
+      },﻿
+
+      {﻿
+        id: 'rabies',﻿
+        name: 'Rabies',﻿
+        icon: '🦇',﻿
+        category: 'Viral Zoonosis',﻿
+        short: 'Neurological signs, aggression, hydrophobia — fatal',﻿
+        clinicalSigns: ['Behavioral change','Aggression','Hypersalivation','Paralysis in later stages','Hydrophobia in some species'],﻿
+        prevention: ['Vaccinate dogs and livestock where indicated','Avoid contact with wild animals','Post-exposure prophylaxis for humans'],﻿
+        precautions: ['Isolate suspected animals','Do not handle suspect animals without protection','Report to authorities'],﻿
+        definition: 'Rabies is a fatal viral encephalitis caused by Lyssavirus, transmitted by bites/saliva.',﻿
+        diagnosis: {field:['History of bite + signs'], lab:['Direct fluorescent antibody on brain tissue','PCR postmortem']}﻿
+      },﻿
+
+      {﻿
+        id: 'prolapse',﻿
+        name: 'Uterine/Vaginal Prolapse',﻿
+        icon: '🐄',﻿
+        category: 'Obstetric / Physical',﻿
+        short: 'Externalized uterus/vagina postpartum — emergency',﻿
+        clinicalSigns: ['Visible prolapse of vagina or uterus','Difficulty walking','Shock signs if severe'],﻿
+        prevention: ['Proper nutrition','Avoid difficult traction','Manage calving assistance carefully'],﻿
+        treatment: {note:'Emergency — replacement or surgery', specific:['Clean and lubricate','Epidural if needed','Replace and purse-string or suture','Supportive fluids','Antibiotics']}﻿
+      }﻿
+    ];﻿
+
+    /***** LOCAL STORAGE KEYS *****/﻿
+    const KEY_PROFILE = 'js_profile';﻿
+    const KEY_STATS = 'js_stats_v1';﻿
+
+    /***** UTILITIES: local stats, visits *****/﻿
+    function loadStats() {﻿
+      try {﻿
+        const raw = localStorage.getItem(KEY_STATS);﻿
+        return raw ? JSON.parse(raw) : {visits:0,views:{}} ;﻿
+      } catch(e) { return {visits:0,views:{}}; }﻿
+    }﻿
+    function saveStats(s) { localStorage.setItem(KEY_STATS, JSON.stringify(s)); }﻿
+
+    function incVisit() {﻿
+      const s = loadStats();﻿
+      s.visits = (s.visits||0) + 1;﻿
+      saveStats(s);﻿
+      renderStats();﻿
+    }﻿
+    function incDiseaseView(id) {﻿
+      const s = loadStats();﻿
+      s.views = s.views || {};﻿
+      s.views[id] = (s.views[id]||0) + 1;﻿
+      saveStats(s);﻿
+      renderStats();﻿
+    }﻿
+
+    /***** PROFILE HANDLING *****/﻿
+    function loadProfile() {﻿
+      try {﻿
+        const raw = localStorage.getItem(KEY_PROFILE);﻿
+        return raw ? JSON.parse(raw) : null;﻿
+      } catch(e){ return null; }﻿
+    }﻿
+    function saveProfile(profile) {﻿
+      localStorage.setItem(KEY_PROFILE, JSON.stringify(profile));﻿
+      renderProfile();﻿
+    }﻿
+    function clearProfile() {﻿
+      localStorage.removeItem(KEY_PROFILE);﻿
+      renderProfile();﻿
+    }﻿
+
+    /***** UI RENDERING *****/﻿
+    const diseaseGrid = document.getElementById('diseaseGrid');﻿
+    const diseaseCountEl = document.getElementById('diseaseCount');﻿
+    const visitsCountEl = document.getElementById('visitsCount');﻿
+    const perDiseaseListEl = document.getElementById('perDiseaseList');﻿
+    const topDiseaseEl = document.getElementById('topDisease');﻿
+
+    function makeCardHtml(d) {﻿
+      const html = `﻿
+        <div class="disease-card" data-id="${d.id}" title="${d.short || ''}">﻿
+          <div class="icon">${d.icon || '🩺'}</div>﻿
+          <h3>${d.name}</h3>﻿
+          <p>${d.short || d.category || ''}</p>﻿
+        </div>﻿
+      `;﻿
+      return html;﻿
+    }﻿
+
+    function renderCards(filter='') {﻿
+      diseaseGrid.innerHTML = '';﻿
+      const q = filter.trim().toLowerCase();﻿
+      let shown = 0;﻿
+      diseases.forEach(d => {﻿
+        // search by name or clinicalSigns﻿
+        const byName = d.name.toLowerCase().includes(q);﻿
+        const byShort = (d.short||'').toLowerCase().includes(q);﻿
+        const bySign = (d.clinicalSigns || []).some(s => s.toLowerCase().includes(q));﻿
+        if(!q || byName || byShort || bySign) {﻿
+          diseaseGrid.insertAdjacentHTML('beforeend', makeCardHtml(d));﻿
+          shown++;﻿
+        }﻿
+      });﻿
+      diseaseCountEl.textContent = diseases.length;﻿
+      if(shown === 0) {﻿
+        diseaseGrid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#64748b;padding:18px;border-radius:8px;background:#f8fafc">No diseases match your search.</div>';﻿
+      }﻿
+      attachCardListeners();﻿
+    }﻿
+
+    function attachCardListeners() {﻿
+      document.querySelectorAll('.disease-card').forEach(card => {﻿
+        card.onclick = () => {﻿
+          const id = card.getAttribute('data-id');﻿
+          showDetail(id);﻿
+        };﻿
+      });﻿
+    }﻿
+
+    // Build detail HTML for a disease (robustly handling missing fields)﻿
+    function buildDetailHtml(d) {﻿
+      const cs = (d.clinicalSigns||[]).map(i => `<li>${escapeHtml(i)}</li>`).join('');﻿
+      const prevention = (d.prevention||[]).map(i => `<li>${escapeHtml(i)}</li>`).join('');﻿
+      const precautions = (d.precautions||[]).map(i => `<li>${escapeHtml(i)}</li>`).join('');﻿
+      const herbal = (d.herbalTreatment||d.herbalAyurvedic||[]).map(i => `<li>${escapeHtml(i)}</li>`).join('');﻿
+      const diagnosisField = (d.diagnosis&&d.diagnosis.field) ? (d.diagnosis.field.map(i=>`<li>${escapeHtml(i)}</li>`).join('')) : '';﻿
+      const diagnosisLab = (d.diagnosis&&d.diagnosis.lab) ? (d.diagnosis.lab.map(i=>`<li>${escapeHtml(i)}</li>`).join('')) : '';﻿
+      const treatmentSpec = (d.treatment&&d.treatment.specific) ? (d.treatment.specific.map(i=>`<li>${escapeHtml(i)}</li>`).join('')) : '';﻿
+      const vaccination = (d.vaccination||[]).map(i=>`<li>${escapeHtml(i)}</li>`).join('');﻿
+      const caseStudy = d.caseStudy ? `<h4>Case Study</h4><p>${escapeHtml(d.caseStudy.history||'')}</p><p><strong>Outcome:</strong> ${escapeHtml(d.caseStudy.outcome || '')}</p>` : '';﻿
+
+      return `﻿
+        <div class="info-section">﻿
+          <h3>${d.icon || '🩺'} ${d.name}</h3>﻿
+          ${d.definition ? `<p style="margin-top:8px">${escapeHtml(d.definition)}</p>` : ''}﻿
+          ${d.etiology ? `<h4>Etiology</h4><p>${escapeHtml(d.etiology)}</p>` : ''}﻿
+          ${cs ? `<h4>Clinical Signs</h4><ul>${cs}</ul>` : ''}﻿
+          ${diagnosisField || diagnosisLab ? `<h4>Diagnosis</h4>${diagnosisField ? `<strong>Field:</strong><ul>${diagnosisField}</ul>` : ''}${diagnosisLab ? `<strong>Laboratory:</strong><ul>${diagnosisLab}</ul>` : ''}` : ''}﻿
+          ${treatmentSpec ? `<h4>Treatment</h4><p>${escapeHtml(d.treatment.note || '')}</p><ul>${treatmentSpec}</ul>` : ''}﻿
+          ${herbal ? `<h4>Herbal / Supportive</h4><ul>${herbal}</ul>` : ''}﻿
+          ${prevention ? `<h4>Prevention&Control</h4><ul>${prevention}</ul>` : ''}﻿
+          ${precautions ? `<h4>Precautions</h4><ul>${precautions}</ul>` : ''}﻿
+          ${vaccination ? `<h4>Vaccination</h4><ul>${vaccination}</ul>` : ''}﻿
+          ${caseStudy}﻿
+        </div>﻿
+      `;﻿
+    }﻿
+
+    function showDetail(id) {﻿
+      const d = diseases.find(x => x.id === id);﻿
+      if(!d) return;﻿
+      document.getElementById('cardsView').style.display = 'none';﻿
+      document.getElementById('detailView').style.display = 'block';﻿
+      document.getElementById('diseaseDetailContainer').innerHTML = buildDetailHtml(d);﻿
+      incDiseaseView(id);﻿
+      // remember last viewed﻿
+      localStorage.setItem('js_last_viewed', id);﻿
+    }﻿
+
+    document.getElementById('backBtn').addEventListener('click', () => {﻿
+      document.getElementById('detailView').style.display = 'none';﻿
+      document.getElementById('cardsView').style.display = 'block';﻿
+    });﻿
+
+    // search input﻿
+    document.getElementById('searchInput').addEventListener('input', (e) => {﻿
+      renderCards(e.target.value);﻿
+    });﻿
+
+    /***** PROFILE UI *****/﻿
+    function renderProfile() {﻿
+      const profile = loadProfile();﻿
+      const loginForm = document.getElementById('loginForm');﻿
+      const profileInfo = document.getElementById('profileInfo');﻿
+      if(profile) {﻿
+        loginForm.style.display = 'none';﻿
+        profileInfo.style.display = 'block';﻿
+        document.getElementById('profileName').textContent = profile.name;﻿
+        document.getElementById('profilePhone').textContent = profile.phone;﻿
+        const badge = document.getElementById('profileRoleBadge');﻿
+        badge.innerHTML = '';﻿
+        const b = document.createElement('span');﻿
+        b.className = 'user-badge ' + (profile.role === 'farmer' ? 'badge-farmer' : profile.role === 'student' ? 'badge-student' : 'badge-doctor');﻿
+        b.textContent = profile.role.charAt(0).toUpperCase() + profile.role.slice(1);﻿
+        badge.appendChild(b);﻿
+
+        // welcome area on top﻿
+        document.getElementById('welcomeArea').style.display = 'block';﻿
+        document.getElementById('userNameText').textContent = profile.name;﻿
+        const ub = document.getElementById('userBadge');﻿
+        ub.className = 'user-badge ' + (profile.role === 'farmer' ? 'badge-farmer' : profile.role === 'student' ? 'badge-student' : 'badge-doctor');﻿
+        ub.textContent = profile.role.charAt(0).toUpperCase() + profile.role.slice(1);﻿
+      } else {﻿
+        loginForm.style.display = 'block';﻿
+        profileInfo.style.display = 'none';﻿
+        document.getElementById('welcomeArea').style.display = 'none';﻿
+      }﻿
+    }﻿
+
+    document.getElementById('loginBtn').addEventListener('click', () => {﻿
+      const name = document.getElementById('nameInput').value.trim();﻿
+      const phone = document.getElementById('phoneInput').value.trim();﻿
+      const role = document.getElementById('roleSelect').value;﻿
+      if(!name || !phone) {﻿
+        alert('Please enter name and phone.');﻿
+        return;﻿
+      }﻿
+      saveProfile({name, phone, role});﻿
+    });﻿
+
+    document.getElementById('clearBtn').addEventListener('click', () => {﻿
+      document.getElementById('nameInput').value = '';﻿
+      document.getElementById('phoneInput').value = '';﻿
+    });﻿
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {﻿
+      if(confirm('Logout and remove profile from this device?')) {﻿
+        clearProfile();﻿
+      }﻿
+    });﻿
+
+    /***** STATS UI *****/﻿
+    function renderStats() {﻿
+      const s = loadStats();﻿
+      visitsCountEl.textContent = s.visits || 0;﻿
+      diseaseCountEl.textContent = diseases.length;﻿
+      // per disease list﻿
+      const views = s.views || {};﻿
+      const rows = Object.keys(views).map(id => {﻿
+        const d = diseases.find(x => x.id === id);﻿
+        return {id, name: d ? d.name : id, cnt: views[id]};﻿
+      }).sort((a,b) => b.cnt - a.cnt);﻿
+      perDiseaseListEl.innerHTML = rows.length ? rows.map(r => `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #f1f5f9"><div style="font-size:14px">${escapeHtml(r.name)}</div><div style="font-weight:700">${r.cnt}</div></div>`).join('') : '<div style="color:#64748b">No disease views yet.</div>';﻿
+      topDiseaseEl.textContent = rows.length ? `Top: ${rows[0].name} (${rows[0].cnt})` : 'Top: —';﻿
+    }﻿
+
+    document.getElementById('exportBtn').addEventListener('click', () => {﻿
+      const data = JSON.stringify(diseases, null, 2);﻿
+      const blob = new Blob([data], {type:'application/json'});﻿
+      const url = URL.createObjectURL(blob);﻿
+      const a = document.createElement('a');﻿
+      a.href = url;﻿
+      a.download = 'jeevsanjeevani_diseases.json';﻿
+      document.body.appendChild(a);﻿
+      a.click();﻿
+      a.remove();﻿
+      URL.revokeObjectURL(url);﻿
+    });﻿
+
+    document.getElementById('resetStatsBtn').addEventListener('click', () => {﻿
+      if(confirm('Reset local stats (visits and views)?')) {﻿
+        localStorage.removeItem(KEY_STATS);﻿
+        renderStats();﻿
+      }﻿
+    });﻿
+
+    /***** BOOTSTRAP UI *****/﻿
+    function bootstrap() {﻿
+      // initial render﻿
+      renderCards();﻿
+      renderProfile();﻿
+      renderStats();﻿
+
+      // increment visit once per session (simple)﻿
+      if(!sessionStorage.getItem('js_visited_session')) {﻿
+        incVisit();﻿
+        sessionStorage.setItem('js_visited_session', '1');﻿
+      }﻿
+
+      // try to reopen last viewed disease﻿
+      const last = localStorage.getItem('js_last_viewed');﻿
+      if(last) {﻿
+        // show small hint or reopen? we'll not force open; show hint in top actions (in future)﻿
+      }﻿
+
+      // attach click on dynamically created cards is handled in renderCards﻿
+    }﻿
+
+    /* small helper to escape html */﻿
+    function escapeHtml(unsafe) {﻿
+      if(!unsafe&&unsafe !== 0) return '';﻿
+      return String(unsafe)﻿
+        .replace(/&/g, "&amp;")﻿
+        .replace(/</g, "&lt;")﻿
+        .replace(/>/g, "&gt;")﻿
+        .replace(/"/g, "&quot;")﻿
+        .replace(/'/g, "&#039;");﻿
+    }﻿
+
+    // expose some functions for debugging in console﻿
+    window.Jeev = {﻿
+      diseases,﻿
+      showDetail,﻿
+      renderCards,﻿
+      loadProfile,﻿
+      saveProfile,﻿
+      loadStats,﻿
+      incDiseaseView﻿
+    };﻿
+
+    // attach listeners for dynamic parts after DOM ready﻿
+    document.addEventListener('DOMContentLoaded', bootstrap);﻿
+
+    // increment disease view when detail is opened by function showDetail (above) — already handled﻿
+
+  </script>﻿
+</body>﻿
+</html>
